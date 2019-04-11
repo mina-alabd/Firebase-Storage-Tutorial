@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="utf-8">
+    <title>Firebase Storage Tutorial</title>
+    <style media="screen">
+      body {
+        display: flex;
+        min-height: 100vh;
+        width: 100%;
+        padding: 0;
+        margin: 0;
+        align-items: center;
+        justify-content: center;
+        flex-direction: column;
+      }
+
+      #uploader {
+        -webkit-appearance: none;
+        appearance: none;
+        width: 50%;
+        margin-bottom: 10px;
+      }
+    </style>
+  </head>
+  <body>
+
+    <div>
+      <img style='height: 40vh;'id='mygif' />
+    </div>
+    <progress value="0" max="100" id='uploader'>0%</progress>
+    <input type="file" value="upload" id='fileButton' />
+    <input type="button" value="download" id='downloadButton' />
+
+
+    <script src="https://www.gstatic.com/firebasejs/5.9.3/firebase.js"></script>
+    <script>
+      // Initialize Firebase
+      var config = {
+        apiKey: "AIzaSyA2wJI2hmxUqe6Ntb9BRJENH6-xt0jM3co",
+        authDomain: "file-storage-tut.firebaseapp.com",
+        databaseURL: "https://file-storage-tut.firebaseio.com",
+        projectId: "file-storage-tut",
+        storageBucket: "file-storage-tut.appspot.com",
+        messagingSenderId: "829177131239"
+      };
+      firebase.initializeApp(config);
+
+      // Get Elements
+      var uploader = document.getElementById('uploader');
+      var fileButton = document.getElementById('fileButton');
+      var downloadButton = document.getElementById('downloadButton');
+
+      // Listen for file selection
+      fileButton.addEventListener('change', function(e) {
+        // Get File
+        var file = e.target.files[0];
+
+        // Create a storage ref
+        var storageRef = firebase.storage().ref('sweet_gifs/' + file.name)
+
+        // Upload File
+        var task = storageRef.put(file);
+
+        // Update progress bar
+        task.on('state_changed',
+          function progress(snapshot) {
+            var percentage = (snapshot.bytesTransferred / snapshot.totalBytes) * 100
+            uploader.value = percentage;
+          }
+        )
+
+        window.file = file
+      })
+
+      downloadButton.addEventListener('click', function(){
+        var storage = firebase.storage();
+        var pathReference = storage.ref('sweet_gifs/' + file.name);
+
+        pathReference.getDownloadURL().then(function(url){
+          var gif = document.getElementById('mygif');
+          gif.src = url;
+        }).catch(function(error) { alert('could not get file! Submit feedback to github.com/vpio') })
+      })
+
+
+    </script>
+  </body>
+</html>
